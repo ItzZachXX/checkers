@@ -1,0 +1,11 @@
+{
+  "name": "Kingrow Checkers",
+  "short_name": "Kingrow",
+  "description": "Checkers with every rule enforced, move hints, points, pass and play, online play and a computer opponent.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e1014",
+  "theme_color": "#0e1014",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kingrow Checkers</title>
+  <meta name="description" content="Play checkers in your browser: pass and play on one device, play a friend online with a link, or face the computer. Every rule enforced, move hints, and point tracking.">
+  <meta name="theme-color" content="#0e1014">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <button class="brand" id="brandBtn" aria-label="Kingrow home">
+      <span class="brand-mark" id="brandMark"></span>
+      <span class="brand-name">Kingrow</span>
+    </button>
+    <nav class="topnav">
+      <button class="nav-btn" id="navPlay" data-icon="home"><span>Play</span></button>
+      <button class="nav-btn" id="navRules" data-icon="book"><span>Rules</span></button>
+      <button class="nav-btn icon-only" id="navTheme" aria-label="Toggle light or dark mode"></button>
+      <button class="nav-btn icon-only" id="navSettings" aria-label="Settings" data-icon="gear"></button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="view">
+      <div class="hero">
+        <p class="eyebrow">Checkers, fully enforced</p>
+        <h1>Jump, capture, crown.<br><span>Learn every move.</span></h1>
+        <p class="lede">Every rule of American checkers is built in. Captures are compulsory, jumps chain together, and the coach explains the best move whenever you ask.</p>
+      </div>
+
+      <div id="resumeSlot"></div>
+
+      <div class="mode-grid">
+        <button class="mode-card" data-mode="local">
+          <span class="mode-icon" data-icon="users"></span>
+          <span class="mode-title">Pass &amp; Play</span>
+          <span class="mode-desc">Two players on this device. Works with no internet connection.</span>
+          <span class="mode-tag">Offline</span>
+        </button>
+        <button class="mode-card" data-mode="online">
+          <span class="mode-icon" data-icon="globe"></span>
+          <span class="mode-title">Play Online</span>
+          <span class="mode-desc">Create a room and send the link. Your friend joins from any device.</span>
+          <span class="mode-tag accent">Invite link</span>
+        </button>
+        <button class="mode-card" data-mode="ai">
+          <span class="mode-icon" data-icon="cpu"></span>
+          <span class="mode-title">vs Computer</span>
+          <span class="mode-desc">Four difficulty levels, from your first game to a real challenge.</span>
+          <span class="mode-tag">Offline</span>
+        </button>
+      </div>
+
+      <div class="values-strip">
+        <div class="values-head">
+          <h2>Point values</h2>
+          <p>Each capture adds the piece's value to your score. A king counts double because it moves and captures in every direction.</p>
+        </div>
+        <div class="values-row three" id="valuesRow"></div>
+      </div>
+    </section>
+
+    <!-- GAME -->
+    <section id="game" class="view hidden">
+      <div class="game-layout">
+        <div class="board-col">
+          <div class="player-card" id="cardTop"></div>
+          <div class="board-area">
+            <div class="eval-bar hidden" id="evalBar"><div class="eval-fill" id="evalFill"></div><span class="eval-num" id="evalNum">0.0</span></div>
+            <div class="board-shell">
+              <div class="board" id="board" aria-label="Checkers board"></div>
+              <svg class="arrows" id="arrows" viewBox="0 0 8 8" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="2.6" markerHeight="2.6" orient="auto-start-reverse">
+                    <path d="M0 0 L10 5 L0 10 z" class="arrowhead"/>
+                  </marker>
+                </defs>
+                <g id="arrowLayer"></g>
+              </svg>
+              <div class="review-banner hidden" id="reviewBanner">
+                <span id="reviewText">Viewing earlier position</span>
+                <button class="chip-btn" id="reviewLive">Back to live</button>
+              </div>
+            </div>
+          </div>
+          <div class="player-card" id="cardBottom"></div>
+        </div>
+
+        <aside class="side">
+          <div class="status" id="status"></div>
+          <div class="offer hidden" id="offerBox"></div>
+
+          <div class="hint-card" id="hintCard">
+            <div class="hint-head">
+              <span class="hint-title"><span data-icon="bulb"></span>Coach</span>
+              <span class="hint-count" id="hintCount"></span>
+            </div>
+            <div class="hint-body" id="hintBody">Tap a piece to see where it can move. Press the button for the strongest move.</div>
+            <button class="btn primary block" id="hintBtn"><span data-icon="bulb"></span><span>Show best move</span></button>
+          </div>
+
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-tab="moves" role="tab">Moves</button>
+            <button class="tab" data-tab="points" role="tab">Points</button>
+            <button class="tab hidden" data-tab="chat" role="tab" id="chatTab">Chat<span class="dot hidden" id="chatDot"></span></button>
+          </div>
+          <div class="tab-panels">
+            <div class="panel" data-panel="moves">
+              <div class="moves" id="moveList"></div>
+              <div class="nav-row">
+                <button class="icon-btn" id="navFirst" aria-label="First move" data-icon="first"></button>
+                <button class="icon-btn" id="navPrev" aria-label="Previous move" data-icon="prev"></button>
+                <button class="icon-btn" id="navNext" aria-label="Next move" data-icon="next"></button>
+                <button class="icon-btn" id="navLast" aria-label="Latest move" data-icon="last"></button>
+              </div>
+            </div>
+            <div class="panel hidden" data-panel="points">
+              <div class="points" id="pointsPanel"></div>
+            </div>
+            <div class="panel hidden" data-panel="chat">
+              <div class="chat-log" id="chatLog"></div>
+              <form class="chat-form" id="chatForm" autocomplete="off">
+                <input id="chatInput" maxlength="200" placeholder="Message your opponent">
+                <button class="icon-btn" aria-label="Send" data-icon="send"></button>
+              </form>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <button class="tool" id="undoBtn" data-icon="undo"><span>Takeback</span></button>
+            <button class="tool" id="flipBtn" data-icon="flip"><span>Flip</span></button>
+            <button class="tool" id="drawBtn" data-icon="draw"><span>Draw</span></button>
+            <button class="tool danger" id="resignBtn" data-icon="flag"><span>Resign</span></button>
+          </div>
+          <div class="toolbar secondary">
+            <button class="tool" id="newBtn" data-icon="plus"><span>New game</span></button>
+            <button class="tool" id="pdnBtn" data-icon="download"><span>Save PDN</span></button>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-foot"><a href="https://4fdr.dev">Made by 4FDR Studios</a></footer>
+
+  <!-- Modal host -->
+  <div class="modal-back hidden" id="modalBack">
+    <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
+  <script src="rules.js"></script>
+  <script src="engine.js"></script>
+  <script src="art.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
